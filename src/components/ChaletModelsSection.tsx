@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { trackSiteEvent } from '@/lib/trackSiteEvent';
 
-// Cole aqui a URL pública do selo gerada no seu Bucket Supabase
-const SUISSE_GARANTIE_SEAL_URL = 'https://elhcijnfasljabddxfys.supabase.co/storage/v1/object/public/chales/suisse-garantie.png';
+const SUISSE_GARANTIE_SEAL_URL =
+  'https://elhcijnfasljabddxfys.supabase.co/storage/v1/object/public/chales/suisse-garantie.png';
 
 interface ChaletModelData {
   id: string;
@@ -24,8 +24,8 @@ interface ChaletModelData {
 }
 
 interface ChaletModelsSectionProps {
-  locationSlug?: string;    // ex: 'jaboticatubas-mg'
-  landingPageSlug?: string;  // ex: 'jaboticatubas-mg' ou 'capitolio-mg'
+  locationSlug?: string;
+  landingPageSlug?: string;
 }
 
 export default function ChaletModelsSection({
@@ -35,7 +35,6 @@ export default function ChaletModelsSection({
   const [models, setModels] = useState<ChaletModelData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Busca do Banco de Dados os modelos
   useEffect(() => {
     async function fetchChaletModels() {
       try {
@@ -97,14 +96,18 @@ export default function ChaletModelsSection({
     fetchChaletModels();
   }, [locationSlug]);
 
-  const handleInterestClick = (modelSlug: string) => {
+  const handleInterestClick = (model: ChaletModelData) => {
+    // Dispara o rastreamento individual mantendo o slug do modelo e o valor, 
+    // mesmo com o botão usando um rótulo genérico.
     trackSiteEvent({
       eventName: 'click_book_interest',
-      landingPageSlug: landingPageSlug,
+      landingPageSlug,
       locationName: locationSlug,
-      modelSlug: modelSlug,
+      modelSlug: model.slug,
       componentName: 'ChaletModelsSection',
       buttonLabel: 'Tenho interesse',
+      value: model.price,
+      currency: 'BRL',
     });
   };
 
@@ -144,7 +147,6 @@ export default function ChaletModelsSection({
             {models.map((model) => {
               const isEsgotado = model.availableUnits <= 0;
 
-              // Usa o whatsapp_link vindo do banco ou um fallback dinâmico
               const targetWhatsappUrl = model.whatsappLink && model.whatsappLink.trim() !== ''
                 ? model.whatsappLink
                 : `https://wa.me/5538997332966?text=Ol%C3%A1!%20Tenho%20interesse%20no%20modelo%20${encodeURIComponent(model.name)}%20em%20${locationSlug}.`;
@@ -157,29 +159,17 @@ export default function ChaletModelsSection({
                   <div>
                     {/* Container da Imagem */}
                     <div className="relative w-full aspect-[4/3] bg-[#f0f4f0] rounded-2xl overflow-hidden mb-6 border border-gray-100">
-                      {/* Badge da Tag */}
                       <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-[#0b3823] text-[10px] font-extrabold px-3 py-1 rounded-full shadow-sm tracking-wider z-10">
                         {model.tag}
                       </span>
 
-                      {/* Badge de Disponibilidade */}
-                      <span
-                        className={`absolute top-3 right-3 text-[10px] font-bold px-3 py-1 rounded-full shadow-sm z-10 ${
-                          isEsgotado
-                            ? 'bg-rose-100 text-rose-700'
-                            : model.availableUnits <= 2
-                            ? 'bg-amber-100 text-amber-800'
-                            : 'bg-emerald-100 text-emerald-800'
-                        }`}
-                      >
-                        {isEsgotado
-                          ? 'Esgotado'
-                          : `${model.availableUnits} ${
-                              model.availableUnits === 1 ? 'unidade restante' : 'unidades disponíveis'
-                            }`}
-                      </span>
+                      {/* Exibe a badge somente se estiver esgotado */}
+                      {isEsgotado && (
+                        <span className="absolute top-3 right-3 text-[10px] font-bold px-3 py-1 rounded-full shadow-sm z-10 bg-rose-100 text-rose-700">
+                          Vendido
+                        </span>
+                      )}
 
-                      {/* Selo Suisse Garantie no canto inferior direito */}
                       <div
                         className="absolute bottom-3 right-3 z-10 bg-white/90 backdrop-blur-md p-1 rounded-full shadow-md border border-gray-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
                         title="Garantia Suisse Garantie"
@@ -191,7 +181,6 @@ export default function ChaletModelsSection({
                         />
                       </div>
 
-                      {/* Imagem Principal do Chalé */}
                       <img
                         src={model.imageSrc}
                         alt={model.name}
@@ -232,17 +221,19 @@ export default function ChaletModelsSection({
                       </span>
                     </div>
 
+                    {/* Botão de CTA limpo, com id único por modelo para os pixels/analytics */}
                     <Link
+                      id={`cta-chale-${model.slug}`}
                       href={isEsgotado ? '#' : targetWhatsappUrl}
                       target={isEsgotado ? '_self' : '_blank'}
-                      onClick={() => !isEsgotado && handleInterestClick(model.slug)}
+                      onClick={() => !isEsgotado && handleInterestClick(model)}
                       className={`text-xs sm:text-sm font-bold px-5 py-3 rounded-full transition-all whitespace-nowrap shadow-md ${
                         isEsgotado
                           ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
                           : 'bg-[#0b3823] text-white hover:bg-[#072618]'
                       }`}
                     >
-                      {isEsgotado ? 'Indisponível' : 'Tenho interesse'}
+                      {isEsgotado ? 'Esgotado' : 'Tenho interesse'}
                     </Link>
                   </div>
                 </div>

@@ -7,15 +7,24 @@ import { trackSiteEvent } from '@/lib/trackSiteEvent';
 interface HeaderProps {
   landingPageSlug?: string;
   locationName?: string;
+  whatsappNumber?: string;
 }
 
 export default function Header({
   landingPageSlug = 'jaboticatubas-mg',
   locationName = 'Jaboticatubas - MG',
+  whatsappNumber,
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const whatsappUrl = `https://wa.me/5500000000000?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Eco%20Vila%20${encodeURIComponent(
+  const cleanNumber = whatsappNumber ? whatsappNumber.replace(/\D/g, '') : '';
+  const formattedNumber = cleanNumber
+    ? cleanNumber.startsWith('55')
+      ? cleanNumber
+      : `55${cleanNumber}`
+    : '5500000000000';
+
+  const whatsappUrl = `https://wa.me/${formattedNumber}?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Eco%20Vila%20${encodeURIComponent(
     locationName
   )}.`;
 
@@ -29,14 +38,8 @@ export default function Header({
     });
   };
 
-  const handleNavClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    targetId: string,
-    label: string
-  ) => {
-    e.preventDefault();
-
-    // Rastreia o evento
+  const handleNavClick = (label: string) => {
+    // Rastreia o evento sem bloquear o comportamento nativo do <a>
     trackSiteEvent({
       eventName: 'cta_click',
       landingPageSlug,
@@ -46,17 +49,6 @@ export default function Header({
     });
 
     setIsMobileMenuOpen(false);
-
-    // Encontra a seção pelo ID e executa o rolamento suave
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-      // Atualiza a URL sem recarregar a página
-      window.history.pushState(null, '', `#${targetId}`);
-    }
   };
 
   return (
@@ -118,35 +110,35 @@ export default function Header({
         <nav className="hidden lg:flex items-center gap-7 text-[14px] font-semibold text-[#1e293b]">
           <a
             href="#conceito"
-            onClick={(e) => handleNavClick(e, 'conceito', 'O conceito')}
+            onClick={() => handleNavClick('O conceito')}
             className="hover:text-[#0b3823] transition-colors py-1 cursor-pointer"
           >
             O conceito
           </a>
           <a
             href="#chales"
-            onClick={(e) => handleNavClick(e, 'chales', 'Chalés')}
+            onClick={() => handleNavClick('Chalés')}
             className="hover:text-[#0b3823] transition-colors py-1 cursor-pointer"
           >
             Chalés
           </a>
           <a
             href="#projeto"
-            onClick={(e) => handleNavClick(e, 'projeto', 'Projeto')}
+            onClick={() => handleNavClick('Projeto')}
             className="hover:text-[#0b3823] transition-colors py-1 cursor-pointer"
           >
             Projeto
           </a>
           <a
             href="#sustentabilidade"
-            onClick={(e) => handleNavClick(e, 'sustentabilidade', 'Sustentabilidade')}
+            onClick={() => handleNavClick('Sustentabilidade')}
             className="hover:text-[#0b3823] transition-colors py-1 cursor-pointer"
           >
             Sustentabilidade
           </a>
           <a
             href="#localizacao"
-            onClick={(e) => handleNavClick(e, 'localizacao', 'Localização')}
+            onClick={() => handleNavClick('Localização')}
             className="hover:text-[#0b3823] transition-colors py-1 cursor-pointer"
           >
             Localização
@@ -187,35 +179,35 @@ export default function Header({
         <div className="lg:hidden bg-white border-t border-gray-100 px-6 py-4 flex flex-col gap-3 shadow-lg">
           <a
             href="#conceito"
-            onClick={(e) => handleNavClick(e, 'conceito', 'O conceito')}
+            onClick={() => handleNavClick('O conceito')}
             className="text-[#1e293b] font-semibold text-sm hover:text-[#0b3823] py-2 border-b border-gray-50 cursor-pointer"
           >
             O conceito
           </a>
           <a
             href="#chales"
-            onClick={(e) => handleNavClick(e, 'chales', 'Chalés')}
+            onClick={() => handleNavClick('Chalés')}
             className="text-[#1e293b] font-semibold text-sm hover:text-[#0b3823] py-2 border-b border-gray-50 cursor-pointer"
           >
             Chalés
           </a>
           <a
             href="#projeto"
-            onClick={(e) => handleNavClick(e, 'projeto', 'Projeto')}
+            onClick={() => handleNavClick('Projeto')}
             className="text-[#1e293b] font-semibold text-sm hover:text-[#0b3823] py-2 border-b border-gray-50 cursor-pointer"
           >
             Projeto
           </a>
           <a
             href="#sustentabilidade"
-            onClick={(e) => handleNavClick(e, 'sustentabilidade', 'Sustentabilidade')}
+            onClick={() => handleNavClick('Sustentabilidade')}
             className="text-[#1e293b] font-semibold text-sm hover:text-[#0b3823] py-2 border-b border-gray-50 cursor-pointer"
           >
             Sustentabilidade
           </a>
           <a
             href="#localizacao"
-            onClick={(e) => handleNavClick(e, 'localizacao', 'Localização')}
+            onClick={() => handleNavClick('Localização')}
             className="text-[#1e293b] font-semibold text-sm hover:text-[#0b3823] py-2 border-b border-gray-50 cursor-pointer"
           >
             Localização
