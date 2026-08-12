@@ -102,7 +102,6 @@ function getOrCreateSessionId(): string {
     }
     return sessionId;
   } catch (err) {
-    console.warn('[Analytics] sessionStorage indisponível, usando ID de sessão em memória.');
     return 'sess_fallback_' + Math.random().toString(36).substring(2, 15);
   }
 }
@@ -148,7 +147,6 @@ export async function trackSiteEvent(params: TrackSiteEventParams) {
     if (eventName === 'page_view') {
       const isTracked = isPageViewAlreadyTracked(window.location.pathname);
       if (isTracked) {
-        console.log(`[Analytics] Page view ignorado (já registrado em: ${window.location.pathname})`);
         return;
       }
     }
@@ -161,7 +159,7 @@ export async function trackSiteEvent(params: TrackSiteEventParams) {
     try {
       urlParams = new URLSearchParams(window.location.search);
     } catch (e) {
-      console.warn('[Analytics] Erro ao ler URLSearchParams:', e);
+      // Falha silenciosa na leitura de parâmetros da URL
     }
 
     const payload = {
@@ -184,22 +182,9 @@ export async function trackSiteEvent(params: TrackSiteEventParams) {
       },
     };
 
-    console.log('[Analytics] Enviando evento:', payload);
-
     // 3. Salva no banco Supabase
-    const { error } = await supabase.from('site_events').insert(payload);
-
-    if (error) {
-      console.error('❌ Erro no Supabase ao registrar evento:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code,
-      });
-    } else {
-      console.log('✅ Evento salvo no Supabase com sucesso:', eventName);
-    }
+    await supabase.from('site_events').insert(payload);
   } catch (err) {
-    console.error('❌ Exceção não tratada ao rastrear evento:', err);
+    // Falha silenciosa no envio do evento
   }
 }

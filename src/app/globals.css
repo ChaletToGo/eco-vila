@@ -10,9 +10,9 @@
   /* Substitui a font-sans padrão do Tailwind pela Inter */
   --font-sans: 'Inter', sans-serif;
   
-  /* Substitui a Dexa Pro pela Instrument Sans (para usar com font-instrument ou font-dexa no seu HTML) */
+  /* Substitui a Dexa Pro pela Instrument Sans */
   --font-instrument: 'Instrument Sans', sans-serif;
-  --font-dexa: 'Instrument Sans', sans-serif; /* Mantido como alias para não quebrar classes existentes */
+  --font-dexa: 'Instrument Sans', sans-serif; /* Mantido como alias */
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -23,6 +23,11 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+}
+
+/* Rolagem suave global para os links de âncora (#) */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
