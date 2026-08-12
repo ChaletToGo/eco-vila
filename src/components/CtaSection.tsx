@@ -6,14 +6,32 @@ import { trackSiteEvent } from '@/lib/trackSiteEvent';
 interface CtaSectionProps {
   landingPageSlug?: string;
   locationName?: string;
+  whatsappNumber?: string; // Aceita o valor vindo da coluna 'phone' ou 'phone_formatted'
 }
 
 export default function CtaSection({
   landingPageSlug = 'jaboticatubas-mg',
   locationName = 'Jaboticatubas - MG',
+  whatsappNumber,
 }: CtaSectionProps) {
-  const whatsappUrl =
-    'https://wa.me/5500000000000?text=Ol%C3%A1!%20Gostaria%20de%20falar%20com%20um%20consultor%20sobre%20a%20Eco%20Vila.';
+  // Remove parênteses, traços e espaços, mantendo apenas dígitos
+  const cleanNumber = whatsappNumber ? whatsappNumber.replace(/\D/g, '') : '';
+
+  // Garante que o DDI do Brasil (55) está no início do número
+  const formattedNumber = cleanNumber
+    ? cleanNumber.startsWith('55')
+      ? cleanNumber
+      : `55${cleanNumber}`
+    : '';
+
+  const whatsappMessage = encodeURIComponent(
+    'Olá! Gostaria de falar com um consultor sobre a Eco Vila.'
+  );
+
+  // Se houver número formatado, monta o link do WhatsApp; caso contrário, mantém fallback
+  const whatsappUrl = formattedNumber
+    ? `https://wa.me/${formattedNumber}?text=${whatsappMessage}`
+    : `https://wa.me/5531982932218?text=${whatsappMessage}`;
 
   const handleCtaClick = () => {
     trackSiteEvent({
@@ -37,17 +55,14 @@ export default function CtaSection({
 
           {/* Lado Esquerdo: Textos */}
           <div className="flex flex-col gap-4 max-w-2xl relative z-10">
-            {/* Tag / Subtítulo */}
             <span className="text-[#a3e635] text-xs font-bold tracking-widest uppercase">
               Seu próximo passo
             </span>
 
-            {/* Título Principal */}
             <h2 className="text-white text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
               Seu refúgio na natureza pode começar agora.
             </h2>
 
-            {/* Descrição */}
             <p className="text-emerald-100/90 text-sm sm:text-base font-light leading-relaxed">
               Fale com a equipe do Chalet To Go, conheça os modelos disponíveis e descubra qual combina com você.
             </p>
@@ -62,7 +77,6 @@ export default function CtaSection({
               onClick={handleCtaClick}
               className="inline-flex items-center justify-center gap-3 bg-white text-[#0c4a2d] font-bold px-8 py-4 rounded-full hover:bg-emerald-50 transition-all transform hover:-translate-y-0.5 shadow-lg w-full md:w-auto text-sm sm:text-base"
             >
-              {/* Ícone de Balão de Fala */}
               <svg
                 className="w-5 h-5 text-[#0c4a2d]"
                 fill="currentColor"

@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Phone, MapPin } from 'lucide-react';
 import { trackSiteEvent } from '@/lib/trackSiteEvent';
+import { supabase } from '@/lib/supabase';
 
 interface FooterProps {
   landingPageSlug?: string;
@@ -17,9 +18,35 @@ export default function Footer({
   landingPageSlug = 'jaboticatubas-mg',
   locationName = 'Jaboticatubas',
   address = 'Avenida 02, nº 1868',
-  phone = '5538997332966',
-  phoneFormatted = '(38) 99733-2966',
+  phone: initialPhone = '5538997332966',
+  phoneFormatted: initialPhoneFormatted = '(38) 99733-2966',
 }: FooterProps) {
+  const [phone, setPhone] = useState(initialPhone);
+  const [phoneFormatted, setPhoneFormatted] = useState(initialPhoneFormatted);
+
+  useEffect(() => {
+    async function fetchLocationData() {
+      try {
+        const { data, error } = await supabase
+          .from('locations')
+          .select('phone, phone_formatted')
+          .eq('slug', landingPageSlug)
+          .single();
+
+        if (error) return;
+
+        if (data) {
+          if (data.phone) setPhone(data.phone);
+          if (data.phone_formatted) setPhoneFormatted(data.phone_formatted);
+        }
+      } catch (err) {
+        // Silenciosamente mantém os valores padrões
+      }
+    }
+
+    fetchLocationData();
+  }, [landingPageSlug]);
+
   const handlePhoneClick = () => {
     trackSiteEvent({
       eventName: 'cta_click',
@@ -57,7 +84,7 @@ export default function Footer({
         {/* Lado Direito: Telefone e Endereço */}
         <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-4 sm:gap-6 text-emerald-100/80 font-light">
           
-          {/* Telefone / WhatsApp */}
+          {/* Telefone / WhatsApp vindo do Supabase */}
           <a
             href={`https://wa.me/${phone}`}
             target="_blank"

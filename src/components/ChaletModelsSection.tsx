@@ -20,6 +20,7 @@ interface ChaletModelData {
   availableUnits: number;
   totalUnits: number;
   imageSrc: string;
+  whatsappLink?: string;
 }
 
 interface ChaletModelsSectionProps {
@@ -47,7 +48,7 @@ export default function ChaletModelsSection({
             total_units,
             available_units,
             locations!inner ( slug, name ),
-            chalet_models ( id, slug, tag, name, area, description, features, image_data, image_url )
+            chalet_models ( id, slug, tag, name, area, description, features, image_data, image_url, whatsapp_link )
           `)
           .eq('locations.slug', locationSlug)
           .eq('is_active', true);
@@ -80,6 +81,7 @@ export default function ChaletModelsSection({
               availableUnits: item.available_units ?? 0,
               totalUnits: item.total_units ?? 0,
               imageSrc: imageSrc,
+              whatsappLink: model?.whatsapp_link || '',
             };
           });
 
@@ -141,6 +143,11 @@ export default function ChaletModelsSection({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {models.map((model) => {
               const isEsgotado = model.availableUnits <= 0;
+
+              // Usa o whatsapp_link vindo do banco ou um fallback dinâmico
+              const targetWhatsappUrl = model.whatsappLink && model.whatsappLink.trim() !== ''
+                ? model.whatsappLink
+                : `https://wa.me/5538997332966?text=Ol%C3%A1!%20Tenho%20interesse%20no%20modelo%20${encodeURIComponent(model.name)}%20em%20${locationSlug}.`;
 
               return (
                 <div
@@ -226,11 +233,7 @@ export default function ChaletModelsSection({
                     </div>
 
                     <Link
-                      href={
-                        isEsgotado
-                          ? '#'
-                          : `https://wa.me/5500000000000?text=Ol%C3%A1!%20Tenho%20interesse%20no%20modelo%20${encodeURIComponent(model.name)}%20em%20${locationSlug}.`
-                      }
+                      href={isEsgotado ? '#' : targetWhatsappUrl}
                       target={isEsgotado ? '_self' : '_blank'}
                       onClick={() => !isEsgotado && handleInterestClick(model.slug)}
                       className={`text-xs sm:text-sm font-bold px-5 py-3 rounded-full transition-all whitespace-nowrap shadow-md ${
