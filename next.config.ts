@@ -1,7 +1,9 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextType} */
+const nextConfig = {
+  allowedDevOrigins: [
+    'unwashed-underpass-snowless.ngrok-free.dev',
+    'localhost:3000',
+  ],
 };
 
-export default nextConfig;
+module.exports = nextConfig;
