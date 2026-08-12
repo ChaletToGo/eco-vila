@@ -25,10 +25,8 @@ jobs:
             mkdir -p ~/ChaletToGo/eco-vila
             cd ~/ChaletToGo/eco-vila
 
-            # Caso a pasta exista mas não seja um repo Git válido, clona diretamente na pasta
+            # Caso a pasta exista mas não seja um repo Git válido, inicializa o Git
             if [ ! -d ".git" ]; then
-              # Se houver arquivos que impeçam o clone limpo, o git clone força o reuso no diretório corrente se estiver vazio, 
-              # ou você pode inicializar o repositório diretamente:
               git init
               git remote add origin https://github.com/ChaletToGo/eco-vila.git || git remote set-url origin https://github.com/ChaletToGo/eco-vila.git
             fi
@@ -41,8 +39,11 @@ jobs:
             git checkout -B main origin/main
             git reset --hard origin/main
 
-            # Reconstrói e sobe o container na porta 3001
-            docker compose up -d --build --remove-orphans
+            # Força o rebuild sem usar o cache das camadas do Docker
+            docker compose build --no-cache
 
-            # Limpa imagens antigas do Docker
-            docker image prune -f
+            # Sobe o container destruindo a instância anterior em memória
+            docker compose up -d --force-recreate --remove-orphans
+
+            # Limpa imagens e camadas antigas/sem uso do Docker
+            docker image prune -a -f
