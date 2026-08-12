@@ -1,9 +1,15 @@
-/** @type {import('next').NextType} */
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  allowedDevOrigins: [
-    'unwashed-underpass-snowless.ngrok-free.dev',
-    'localhost:3000',
-  ],
+  output: 'standalone', // Importante para o Docker
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'elhcijnfasljabddxfys.supabase.co', // Domínio do seu Supabase
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
+  },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

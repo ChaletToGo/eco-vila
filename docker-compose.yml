@@ -1,0 +1,14 @@
+services:
+  landing_page:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eco_vila_landing
+    restart: always
+    ports:
+      - '3001:3001'
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
